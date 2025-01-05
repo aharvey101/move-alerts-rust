@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY Cargo.toml Cargo.lock ./
 
 # Build the dependencies
-RUN cargo build --release
+RUN cargo build --release --target x86_64-unknown-linux-gnu
 
 # Copy the source code
 COPY . .
