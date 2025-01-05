@@ -15,7 +15,7 @@ pub struct ServerConfig {
 
 #[derive(Debug)]
 enum PercentThreshold {
-    FiveMin = 1,
+    FiveMin = 2,
     FifteenMin = 3,
     ThirtyMin = 5,
     OneHour = 10,
