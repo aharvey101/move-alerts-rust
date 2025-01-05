@@ -7,6 +7,7 @@ use std::{collections::HashMap, env, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 use tokio::{net::TcpStream, time};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message, WebSocketStream};
+use tokio_tungstenite::tungstenite::protocol::Message as WsMessage;
 
 #[derive(Debug, Clone)]
 pub struct ServerConfig {
@@ -58,7 +59,12 @@ async fn send_telegram_alert(message: &str) -> Result<()> {
         message
     );
 
-    let res = client.post(&url).json(&telegram_message).send().await?;
+    tokio::spawn(async move {
+        let res = client.post(&url).json(&telegram_message).send().await;
+        if let Err(e) = res {
+            println!("Failed to send Telegram message: {:?}", e);
+        }
+    });
 
     Ok(())
 }
@@ -268,7 +274,7 @@ impl BinanceWebSocketServer {
     }
 }
 
-// Example usage
+
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok(); // Load environment variables from .env file
