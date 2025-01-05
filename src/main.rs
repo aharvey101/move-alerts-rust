@@ -184,7 +184,6 @@ impl BinanceWebSocketServer {
         processed_candles: &Arc<Mutex<HashMap<String, f64>>>,
     ) -> Result<()> {
         let value: serde_json::Value = serde_json::from_str(message)?;
-        println!("{}", value);
         if let Some(data) = value.get("data") {
             if data["e"].as_str() == Some("kline") {
                 let kline = &data["k"];
@@ -195,6 +194,7 @@ impl BinanceWebSocketServer {
                 let timeframe = kline["i"].as_str().unwrap_or("");
 
                 let percent_change = ((close - open) / open) * 100.0;
+
                 let key = format!("{}-{}", candle_open_time, open);
                 let threshold = PercentThreshold::from_timeframe(timeframe);
 
