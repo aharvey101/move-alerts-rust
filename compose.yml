@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  move-alerts-rust:
+    build: .
+    container_name: move-alerts-rust
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    command: ["move-alerts-rust"]
