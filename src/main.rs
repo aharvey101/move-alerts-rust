@@ -1,4 +1,5 @@
 use anyhow::Result;
+use dotenv::dotenv;
 use futures::{SinkExt, StreamExt};
 use reqwest;
 use serde::{Deserialize, Serialize};
@@ -43,8 +44,8 @@ async fn send_telegram_alert(message: &str) -> Result<()> {
     let token = env::var("TELEGRAM_TOKEN")?;
     let chat_id = env::var("TELEGRAM_CHAT_ID")?;
     let url = format!("https://api.telegram.org/bot{}/sendMessage", token);
-
     let client = reqwest::Client::new();
+
     let telegram_message = TelegramMessage {
         chat_id,
         text: message.to_string(),
@@ -57,7 +58,7 @@ async fn send_telegram_alert(message: &str) -> Result<()> {
         message
     );
 
-    client.post(&url).json(&telegram_message).send().await?;
+    let res = client.post(&url).json(&telegram_message).send().await?;
 
     Ok(())
 }
@@ -141,8 +142,8 @@ impl BinanceWebSocketServer {
                 Ok((ws_stream, _)) => {
                     println!("WebSocket {} connected", index + 1);
                     *is_initialized.lock().await = true;
-                    let _ =
-                        send_telegram_alert(&format!("WebSocket {} connected", index + 1)).await;
+                    
+                    send_telegram_alert(&format!("WebSocket {} connected", index + 1)).await.unwrap();
 
                     self.handle_messages(ws_stream, index, processed_candles.clone())
                         .await?;
@@ -270,6 +271,8 @@ impl BinanceWebSocketServer {
 // Example usage
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok(); // Load environment variables from .env file
+
     let config = ServerConfig {
         timeframes: vec![
             "5m".to_string(),
